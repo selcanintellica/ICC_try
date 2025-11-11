@@ -60,7 +60,7 @@ class SendEmailLLMRequest(BaseLLMRequest):
 
 class SelectedColumn(BaseModel):
     columnName: str
-
+# TODO: add columns field to ReadSqlVariables and definition map later
 class ReadSqlVariables(BaseModel):
     table_name: str
     query: str

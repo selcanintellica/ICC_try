@@ -15,8 +15,8 @@ class UnknownTemplateKey(Exception):
 
 def build_wire_payload(request: BaseModel) -> WirePayload:
     """
-    BaseLLMRequest türevi bir objeyi (LLM dostu alan adları)
-    wire payload'a (definition id’leriyle) çevirir.
+    Converts an object derived from BaseLLMRequest (with LLM-friendly field names)
+    into a wire payload (using definition IDs).
     """
     template_key = request.template_key()
     if template_key not in TEMPLATES:

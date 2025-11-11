@@ -22,7 +22,8 @@ async def write_data_job(data: WriteDataLLMRequest) -> dict:
     """
     if not data.id:
         data.id = str(uuid.uuid4())
-    await JobRepository.write_data_job(data)
+    wire = build_wire_payload(data)
+    await JobRepository.write_data_job(wire)
     return {"message": "Success", "data": data.model_dump()}
 
 
@@ -39,7 +40,8 @@ async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
     """
     if not data.id:
         data.id = str(uuid.uuid4())
-    await JobRepository.read_sql_job(data)
+    wire = build_wire_payload(data)
+    await JobRepository.read_sql_job(wire)
     return {"message": "Success", "data": data.model_dump()}
 
 

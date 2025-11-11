@@ -110,8 +110,8 @@ class ColumnSchema(BaseModel):
 class WriteDataVariables(BaseModel):
     only_dataset_columns: bool = True
     write_count_schemas: bool = False
-    #add_columns: List[ColumnSchema] = Field(default_factory=list)
-    #columns: List[ColumnSchema] = Field(default_factory=list)
+    add_columns: List[ColumnSchema] = Field(default_factory=list)
+    columns: List[ColumnSchema] = Field(default_factory=list)
     connection: str
     schemas: str
     data_set: str

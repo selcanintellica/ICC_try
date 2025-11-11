@@ -13,10 +13,12 @@ class JobRepository(BaseRepository):
     """Repository for handling job-related API operations"""
 
     @staticmethod
-    async def write_data_job(self, data: WirePayload) -> APIResponse:
-        logger.info(f"Creating write data job: {data.name if hasattr(data, 'name') else 'unknown'}")
+    async def write_data_job(self, data) -> APIResponse:
+        wire = build_wire_payload(data)
+
+        logger.info(f"Creating write data job: {data.template}")
         endpoint = f"{API_CONFIG['api_base_url']}"
-        response = await self.post_request(endpoint, data, APIResponse)
+        response = await self.post_request(endpoint, wire, APIResponse)
         return response
 
     @staticmethod
@@ -40,4 +42,5 @@ class JobRepository(BaseRepository):
         endpoint = f"{API_CONFIG['api_base_url']}"
         response = await self.post_request(endpoint, wire, APIResponse)
         return response
+
 

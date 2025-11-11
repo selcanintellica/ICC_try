@@ -76,9 +76,3 @@ class BaseRepository:
             return APIResponse.error_response(error=str(e), status_code=self.INTERNAL_SERVER_ERROR_STATUS_CODE)
 
 
-
-        except HTTPException as e:
-            return APIResponse.error_response(error=str(e.detail), status_code=e.status_code)
-        except Exception as e:
-            logger.error(f"Unexpected error while get job at {endpoint} - {str(e)}")
-            return APIResponse.error_response(error=str(e), status_code=self.INTERNAL_SERVER_ERROR_STATUS_CODE)

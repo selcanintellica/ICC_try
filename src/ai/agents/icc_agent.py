@@ -9,10 +9,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 # ===================== CREATE AGENT USING CONFIG ===========================
-stc_agent = create_react_agent(**AgentConfigs.stc_config)
+icc_agent = create_react_agent(**AgentConfigs.icc_config)
 
 
 # ====================== RUN
-# response = stc_agent.invoke({"messages": [{"role": "user", "content": "what is the weather in sf"}]})
-# logging.info(json.dumps(response, indent=2, default=str))
+response = icc_agent.invoke({"messages": [{"role": "user", "content": "what is the weather in sf"}]})
+logging.info(json.dumps(response, indent=2, default=str))
 # logging.info(response["messages"][-1].content)

@@ -1,7 +1,0 @@
-{
-  "servers": {
-    "restapi":
-    {"url": "https://dpc-restapi-mcp-server-75k7y.ondigitalocean.app/mcp/", "transport": "streamable_http"}
-  }
-}
- 

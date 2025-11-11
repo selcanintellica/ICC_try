@@ -1,56 +1,50 @@
-# Product Catalog Agent Backend
+# ICC_try
 
-A backend agentic system for managing product catalog data (offering, specification, characteristic, price) using MongoDB and LangGraph.
+## Overview
 
-## Features
+ICC_try is an AI-driven project structured for modular agent development, configuration management, and toolkit integration. It is organized to support flexible agent workflows, prompt engineering, and model interactions.
 
-- Upsert, filter, and list tools for all product catalog entities
-- MongoDB Atlas or local MongoDB support
-- LLM agent integration (Ollama, LangGraph)
+## Folder Structure
 
-## Prerequisites
-
-- Python 3.10+
-- Ollama (for local LLMs)
-- MongoDB Atlas account or local MongoDB instance
+```
+src/
+  ai/
+    agents/         # Agent implementations
+    configs/        # Configuration files and classes
+    prompts/        # Prompt templates and logic
+    toolkits/       # Toolkits for agent capabilities
+    models/         # Model definitions and requests
+    repositories/   # Data access and repository logic
+    utils/          # Utility functions and builders
+```
 
 ## Setup
 
-1. Install dependencies with [uv](https://github.com/astral-sh/uv):
+1. **Clone the repository:**
+   ```sh
+   git clone <repo-url>
+   cd ICC_try
+   ```
+2. **Install dependencies:**
+   ```sh
+   pip install -r requirements.txt
+   ```
+   Or use Poetry:
+   ```sh
+   poetry install
+   ```
 
-	```sh
-	uv sync
-	```
+## Usage
 
-2. Copy the example environment file and edit as needed:
+- Main scripts and modules are located in `src/ai/`.
+- Agents can be configured via the `configs` module.
+- Prompts and toolkits are customizable for different agent tasks.
 
-	```sh
-	cp .env.example .env
-	```
-	- Set `MONGODB_URI` and `MONGODB_DB_NAME` for your MongoDB instance (Atlas or local)
-	- Set `MODEL_NAME` for your LLM (default: qwen3:1.7b)
+## Contributing
 
-## Running the Project
+Feel free to open issues or submit pull requests for improvements or bug fixes.
 
-Run:
+## License
 
-```sh
-./run.sh
-```
+See the `LICENSE` file for details.
 
-This script loads environment variables, starts Ollama and the LLM model, and launches the LangGraph dev server.
-
-## Notes
-
-- Collections are auto-created in MongoDB: `product_offering`, `product_specification`, `product_characteristic`, `product_price`
-- You can use MongoDB Atlas (cloud) or a local MongoDB instance
-- All agent tools are available via the LangGraph agent
-
-## Troubleshooting
-
-- Ensure MongoDB is accessible from your machine (check IP whitelist for Atlas)
-- If Ollama or the LLM model fails to start, check your model name and Ollama installation
-
----
-
-For more details, see the code and comments in each module.

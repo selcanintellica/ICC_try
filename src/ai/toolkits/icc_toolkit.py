@@ -1,13 +1,16 @@
 from typing import List
 from langchain_core.tools import tool
-from src.repositories.job_repository import JobRepository
-from src.models.jobs import WriteDataPayload, ReadSqlPayload, SendEmailPayload, APIResponse
-
 import uuid
+from src.models.llm_requests import (
+    SendEmailLLMRequest,
+    ReadSqlLLMRequest,
+    WriteDataLLMRequest,
+)
+from src.utils.wire_builder import build_wire_payload
+from src.repositories.job_repository import JobRepository
 
 
-
-async def write_data_job(data: WriteDataPayload) -> dict:
+async def write_data_job(data: WriteDataLLMRequest) -> dict:
     """
     Create a job to write data using the JobRepository.
     Use this to initiate data writing tasks.
@@ -24,7 +27,7 @@ async def write_data_job(data: WriteDataPayload) -> dict:
 
 
 @tool
-async def read_sql_job(data: ReadSqlPayload) -> dict:
+async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
     """
     Create a job to read SQL data using the JobRepository.
     Use this to initiate SQL data reading tasks.
@@ -41,7 +44,7 @@ async def read_sql_job(data: ReadSqlPayload) -> dict:
 
 
 @tool
-async def send_email_job(data: SendEmailPayload) -> dict:
+async def send_email_job(data: SendEmailLLMRequest) -> dict:
     """
     Create a job to send an email using the JobRepository.
     Use this to initiate email sending tasks.
@@ -52,7 +55,8 @@ async def send_email_job(data: SendEmailPayload) -> dict:
     """
     if not data.id:
         data.id = str(uuid.uuid4())
-    await JobRepository.send_email_job(data)
+    wire = build_wire_payload(data)
+    await JobRepository.send_email_job(wire)
     return {"message": "Success", "data": data.model_dump()}
 
 

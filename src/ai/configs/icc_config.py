@@ -6,11 +6,11 @@ from src.ai.prompts.prompts import Prompts
 
 load_dotenv()
 
-class STCAgentConfig:
+class ICCAgentConfig:
 	@staticmethod
 	def get_config():
 		return {
-			"prompt": Prompts.stc_prompt,
+			"prompt": Prompts.icc_prompt,
 			"model": ChatOllama(
 				model=os.getenv("MODEL_NAME", "qwen3:1.7b"),
 				validate_model_on_init=True,
@@ -21,5 +21,5 @@ class STCAgentConfig:
 				max_tokens=4096,
 				base_url="http://localhost:11434",
 			),
-			"tools": Toolkits.dpc_toolkit,
+			"tools": Toolkits.icc_toolkit,
 		}

@@ -1,4 +1,4 @@
-from src.ai.configs.stc_config import STCAgentConfig
+from src.ai.configs.icc_config import ICCAgentConfig
 
 class AgentConfigs:
-    stc_config = STCAgentConfig.get_config()
+    icc_config = ICCAgentConfig.get_config()

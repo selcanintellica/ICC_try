@@ -28,6 +28,7 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
             "table_name": "284961720524",
             "drop_before_create": "284961720525",
             "only_dataset_columns": "284961720526",
+            "columns": "2223045341958051",
         },
         "props_name": "readsql",
     },

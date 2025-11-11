@@ -1,13 +1,14 @@
 from typing import List
 from langchain_core.tools import tool
 import uuid
-from src.models.llm_requests import (
+from src.models.natural_language import (
     SendEmailLLMRequest,
     ReadSqlLLMRequest,
     WriteDataLLMRequest,
 )
-from src.utils.wire_builder import build_wire_payload
+from src.payload_builders.wire_builder import build_wire_payload
 from src.repositories.job_repository import JobRepository
+
 
 
 async def write_data_job(data: WriteDataLLMRequest) -> dict:
@@ -40,8 +41,7 @@ async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
     """
     if not data.id:
         data.id = str(uuid.uuid4())
-    wire = build_wire_payload(data)
-    await JobRepository.read_sql_job(wire)
+    await JobRepository.read_sql_job(data)
     return {"message": "Success", "data": data.model_dump()}
 
 
@@ -57,8 +57,8 @@ async def send_email_job(data: SendEmailLLMRequest) -> dict:
     """
     if not data.id:
         data.id = str(uuid.uuid4())
-    wire = build_wire_payload(data)
-    await JobRepository.send_email_job(wire)
+
+    await JobRepository.send_email_job(data)
     return {"message": "Success", "data": data.model_dump()}
 
 

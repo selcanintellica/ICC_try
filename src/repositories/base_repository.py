@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
 
-from src.models.jobs import WriteDataPayload, APIResponse
+from src.models.save_job_response import  APIResponse
 from src.utils.config import API_CONFIG
 
 from loguru import logger
@@ -61,18 +61,18 @@ class BaseRepository:
         return result
 
     # post request
-    async def create_job(self, endpoint: str, data: BaseModel, response_model: type[T]) -> APIResponse[T]:
-        """Create a new job - POST request"""
-        logger.debug(f"Creating job at {endpoint}")
+    async def post_request(self, endpoint: str, data: BaseModel, response_model: type[T]) -> APIResponse[T]:
+        """Send a POST request to the given endpoint with the provided data."""
+        logger.debug(f"Sending POST request to {endpoint}")
         try:
             result = await self._make_request(method=self.HTTP_METHOD_POST, endpoint=endpoint, data=data.model_dump(exclude_none=True, by_alias=True))
             response = APIResponse.success_response(data=response_model(**result), status_code=self.HTTP_STATUS_CODE_CREATED)
-            logger.debug(f"Job created successfully at {endpoint}")
+            logger.debug(f"POST request successful at {endpoint}")
             return response
         except HTTPException as e:
             return APIResponse.error_response(error=str(e.detail), status_code=e.status_code)
         except Exception as e:
-            logger.error(f"Unexpected error while creating job at {endpoint} - {str(e)}")
+            logger.error(f"Unexpected error while sending POST request to {endpoint} - {str(e)}")
             return APIResponse.error_response(error=str(e), status_code=self.INTERNAL_SERVER_ERROR_STATUS_CODE)
 
 
@@ -82,4 +82,3 @@ class BaseRepository:
         except Exception as e:
             logger.error(f"Unexpected error while get job at {endpoint} - {str(e)}")
             return APIResponse.error_response(error=str(e), status_code=self.INTERNAL_SERVER_ERROR_STATUS_CODE)
-

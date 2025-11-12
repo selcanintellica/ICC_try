@@ -1,10 +1,7 @@
 import os
 
 API_CONFIG = {
-    "api_base_url": os.getenv("API_BASE_URL", "https://api.example.com"),
-    "read_sql_endpoint": os.getenv("Read", "/data/v2/sql"),
-    "send_email_endpoint": os.getenv("Send", "/notifications/v1/email"),
-    "write_data_endpoint": os.getenv("Write", "/data/v1/write"),
-
+    "api_base_url": os.getenv("API_BASE_URL", "https://172.16.22.13:8084/job/save"),
+    "query_api_base_url": os.getenv("QUERY_API_BASE_URL", "https://172.16.22.13:8084/utility/query"),
     "timeout": 30.0,
 }

@@ -13,10 +13,10 @@ from src.models.definition_map import (
 class UnknownTemplateKey(Exception):
     ...
 
-def build_wire_payload(request: BaseModel) -> WirePayload:
+def build_wire_payload(request: BaseModel, column_names = "") -> WirePayload:
     """
-    BaseLLMRequest türevi bir objeyi (LLM dostu alan adları)
-    wire payload'a (definition id’leriyle) çevirir.
+    Converts an object derived from BaseLLMRequest (with LLM-friendly field names)
+    into a wire payload (using definition IDs).
     """
     template_key = request.template_key()
     if template_key not in TEMPLATES:
@@ -52,6 +52,13 @@ def build_wire_payload(request: BaseModel) -> WirePayload:
 
             var = WireVariable(definition=def_id, id="", value=value)
             variables.append(var)
+
+    if template_id == "2223045341865624": # READSQL template
+        formated_column_names = [
+            {"columnName": name} for name in column_names
+        ]
+        var = WireVariable(definition=defs_map["columns"], id="", value=formated_column_names)
+        variables.append(var)
 
     wire = WirePayload(
         template=template_id,

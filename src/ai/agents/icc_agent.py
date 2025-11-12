@@ -13,6 +13,6 @@ icc_agent = create_react_agent(**AgentConfigs.icc_config)
 
 
 # ====================== RUN
-response = icc_agent.invoke({"messages": [{"role": "user", "content": "what is the weather in sf"}]})
+response = icc_agent.invoke({"messages": [{"role": "user", "content": "Can you read following sql? SELECT * FROM customers WHERE country = 'USA';"}]})
 logging.info(json.dumps(response, indent=2, default=str))
 # logging.info(response["messages"][-1].content)

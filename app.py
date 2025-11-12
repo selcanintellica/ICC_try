@@ -16,6 +16,27 @@ from datetime import datetime
 import uuid
 import asyncio
 import json
+import logging
+
+# Configure logging to see agent actions
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True,  # Force reconfiguration of logging
+    handlers=[
+        logging.StreamHandler()  # Explicitly output to console
+    ]
+)
+# Set logging for LangChain and LangGraph
+logging.getLogger("langchain").setLevel(logging.DEBUG)
+logging.getLogger("langgraph").setLevel(logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+
+# Print to console directly to ensure visibility
+print("\n" + "="*60)
+print("🔍 LOGGING ENABLED - You should see agent actions below")
+print("="*60 + "\n")
 
 # ICC Agent imports
 from langgraph.prebuilt import create_react_agent
@@ -168,12 +189,30 @@ def format_message(role, content, timestamp=None):
 async def invoke_agent_async(user_message, thread_id="default-session"):
     """Invoke the agent asynchronously with memory"""
     try:
+        # Use both print and logging for maximum visibility
+        print("\n" + "="*60)
+        print(f"🔵 USER QUERY: {user_message}")
+        print(f"🧵 Thread ID: {thread_id}")
+        print("="*60)
+        
+        logger.info(f"🔵 User query: {user_message}")
+        logger.info(f"🧵 Thread ID: {thread_id}")
+        
         response = icc_agent.invoke(
             {"messages": [{"role": "user", "content": user_message}]},
             config={"configurable": {"thread_id": thread_id}}
         )
+        
+        print("\n✅ AGENT RESPONSE RECEIVED")
+        print(f"📊 Number of messages: {len(response.get('messages', []))}")
+        
+        logger.info(f"✅ Agent response received")
+        logger.info(f"📊 Response structure: {json.dumps(response, indent=2, default=str)}")
+        
         return response
     except Exception as e:
+        print(f"\n❌ ERROR: {str(e)}")
+        logger.error(f"❌ Error invoking agent: {str(e)}", exc_info=True)
         return {"error": str(e)}
 
 
@@ -232,6 +271,8 @@ def update_chat(send_clicks, ex1_clicks, ex2_clicks, ex3_clicks, submit, user_in
     chat_display = [format_message(**msg) for msg in chat_data]
     
     try:
+        logger.info(f"💬 Processing user input: {user_input}")
+        
         # Invoke agent with memory (note: Dash doesn't natively support async, using sync wrapper)
         # Using a single thread_id keeps conversation history across messages
         loop = asyncio.new_event_loop()
@@ -250,12 +291,30 @@ def update_chat(send_clicks, ex1_clicks, ex2_clicks, ex3_clicks, submit, user_in
         else:
             # Parse agent response
             messages = response.get("messages", [])
+            print(f"\n📨 Processing {len(messages)} messages from agent")
+            logger.info(f"📨 Processing {len(messages)} messages from agent")
             
             # Extract tool calls and final response
-            for msg in messages:
+            for idx, msg in enumerate(messages):
+                # Get message type - LangChain uses 'type' attribute or class name
+                msg_type = getattr(msg, 'type', None) or msg.__class__.__name__.lower()
+                
+                print(f"\n🔍 Message {idx+1}: Type='{msg_type}', HasToolCalls={hasattr(msg, 'tool_calls') and bool(msg.tool_calls)}")
+                
+                # Skip human/user messages (they're echoes of what we sent)
+                if msg_type in ['human', 'humanmessage']:
+                    print(f"  ⏭️  Skipping user message (already displayed)")
+                    continue
+                
                 if hasattr(msg, "tool_calls") and msg.tool_calls:
                     # Tool call message
+                    print(f"\n🔧 Agent called {len(msg.tool_calls)} tool(s):")
+                    logger.info(f"🔧 Agent called {len(msg.tool_calls)} tool(s)")
                     for tool_call in msg.tool_calls:
+                        print(f"  🛠️  Tool: {tool_call.get('name', 'unknown')}")
+                        print(f"  📥 Args: {json.dumps(tool_call.get('args', {}), indent=2)}")
+                        logger.info(f"  🛠️  Tool: {tool_call.get('name', 'unknown')}")
+                        logger.info(f"  📥 Args: {json.dumps(tool_call.get('args', {}), indent=2)}")
                         tool_message = {
                             "role": "tool",
                             "content": json.dumps({
@@ -267,14 +326,18 @@ def update_chat(send_clicks, ex1_clicks, ex2_clicks, ex3_clicks, submit, user_in
                         chat_data.append(tool_message)
                 
                 elif hasattr(msg, "content") and msg.content and msg.content.strip():
-                    # Agent's text response
-                    if not any(x in str(msg.content).lower() for x in ["tool", "function_call"]):
+                    # Check if it's actually an AI/agent message
+                    if msg_type in ['ai', 'aimessage', 'assistant']:
+                        print(f"\n💬 Agent response: {msg.content[:200]}...")
+                        logger.info(f"💬 Agent response: {msg.content[:100]}...")
                         agent_message = {
                             "role": "agent",
                             "content": msg.content,
                             "timestamp": datetime.now().strftime("%H:%M:%S")
                         }
                         chat_data.append(agent_message)
+                    else:
+                        print(f"  ⏭️  Skipping message with type '{msg_type}'")
             
             # If no messages added, add a default response
             if len(chat_data) == len([msg for msg in chat_data if msg["role"] == "user"]) + len([msg for msg in chat_data if msg["role"] == "user"]) - 1:
@@ -311,4 +374,11 @@ if __name__ == "__main__":
     print("\n⏹️  Press Ctrl+C to stop the server\n")
     print("=" * 60)
     
-    app.run(debug=True, host="0.0.0.0", port=8050)
+    # Disable Dash's dev tools console logging that might interfere
+    import sys
+    sys.stdout.flush()
+    sys.stderr.flush()
+    
+    logger.info("✅ Logging initialized - Agent actions will be printed here")
+    
+    app.run(debug=True, host="0.0.0.0", port=8050, dev_tools_silence_routes_logging=False)

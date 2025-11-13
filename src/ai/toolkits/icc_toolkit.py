@@ -8,6 +8,7 @@ from src.models.natural_language import (
 )
 from src.payload_builders.wire_builder import build_wire_payload
 from src.repositories.job_repository import JobRepository
+from src.utils.auth import authenticate
 
 
 
@@ -29,8 +30,11 @@ async def write_data_job(data: WriteDataLLMRequest) -> dict:
     if not data.id:
         data.id = str(uuid.uuid4())
 
-    # Create HTTP client and repository instance
-    async with AsyncClient() as client:
+    # Authenticate and create HTTP client with token
+    token = await authenticate()
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    
+    async with AsyncClient(headers=headers, verify=False) as client:
         repo = JobRepository(client)
         await JobRepository.write_data_job(repo, data)
     return {"message": "Success", "data": data.model_dump()}
@@ -58,8 +62,11 @@ async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
     if not data.id:
         data.id = str(uuid.uuid4())
     
-    # Create HTTP client and repository instance
-    async with AsyncClient() as client:
+    # Authenticate and create HTTP client with token
+    token = await authenticate()
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    
+    async with AsyncClient(headers=headers, verify=False) as client:
         repo = JobRepository(client)
         response, columns = await JobRepository.read_sql_job(repo, data)
     
@@ -91,8 +98,11 @@ async def send_email_job(data: SendEmailLLMRequest) -> dict:
     if not data.id:
         data.id = str(uuid.uuid4())
 
-    # Create HTTP client and repository instance
-    async with AsyncClient() as client:
+    # Authenticate and create HTTP client with token
+    token = await authenticate()
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    
+    async with AsyncClient(headers=headers, verify=False) as client:
         repo = JobRepository(client)
         await JobRepository.send_email_job(repo, data)
     return {"message": "Success", "data": data.model_dump()}

@@ -9,6 +9,10 @@ Run this file to start the chat interface:
 Then open your browser to: http://localhost:8050
 """
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 import dash
 from dash import dcc, html, Input, Output, State, callback_context
 import dash_bootstrap_components as dbc

@@ -18,7 +18,8 @@ class QueryRepository(BaseRepository):
         Returns:
             APIResponse[QueryResponse]: Response containing column names
         """
-        endpoint = f"{API_CONFIG['query_api_base_url']}"
+        # Need to override base_url for query endpoint - use full URL
+        endpoint = API_CONFIG['query_api_base_url']
         response = await self.post_request(endpoint, data, QueryResponse)
         return response
 

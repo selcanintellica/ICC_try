@@ -28,6 +28,7 @@ class Memory:
     last_columns: Optional[List[str]] = None
     last_preview: Optional[Dict[str, Any]] = None
     gathered_params: Dict[str, Any] = field(default_factory=dict)
+    connection: str = "oracle_10"  # Default connection, can be set from UI/config
     
     def reset(self):
         """Reset memory to start a new conversation."""
@@ -37,6 +38,7 @@ class Memory:
         self.last_columns = None
         self.last_preview = None
         self.gathered_params = {}
+        # Keep connection as it's set externally
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert memory to dictionary for serialization."""
@@ -46,7 +48,8 @@ class Memory:
             "last_job_id": self.last_job_id,
             "last_columns": self.last_columns,
             "last_preview": self.last_preview,
-            "gathered_params": self.gathered_params
+            "gathered_params": self.gathered_params,
+            "connection": self.connection
         }
     
     @classmethod
@@ -59,4 +62,5 @@ class Memory:
         memory.last_columns = data.get("last_columns")
         memory.last_preview = data.get("last_preview")
         memory.gathered_params = data.get("gathered_params", {})
+        memory.connection = data.get("connection", "oracle_10")
         return memory

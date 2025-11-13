@@ -198,7 +198,10 @@ async def invoke_router_async(user_message, session_id="default-session"):
         # Get or create memory for this session
         if session_id not in session_memories:
             session_memories[session_id] = Memory()
+            # TODO: In production, set connection from UI selection:
+            # session_memories[session_id].connection = selected_connection_from_ui
             logger.info(f"🆕 Created new memory for session: {session_id}")
+            logger.info(f"🔌 Using connection: {session_memories[session_id].connection}")
         
         memory = session_memories[session_id]
         

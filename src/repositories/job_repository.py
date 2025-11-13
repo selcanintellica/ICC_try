@@ -17,7 +17,7 @@ class JobRepository(BaseRepository):
         wire = build_wire_payload(data)
 
         logger.info(f"Creating write data job: {data.template}")
-        endpoint = f"{API_CONFIG['api_base_url']}"
+        endpoint = ""  # Empty string since base_url already contains the full path
         response = await self.post_request(endpoint, wire, JobResponse)
         return response
 
@@ -31,7 +31,7 @@ class JobRepository(BaseRepository):
                    - API response with job_id
                    - List of column names from the query
         """
-        query_payload = QueryBuilder.build_read_sql_query_payload(data)
+        query_payload = await QueryBuilder.build_read_sql_query_payload(data)
         column_response = await QueryRepository.get_column_names(self, query_payload)
         
         # Extract column names from the response
@@ -40,7 +40,7 @@ class JobRepository(BaseRepository):
         wire = build_wire_payload(data, column_names=column_names)
 
         logger.info(f"Creating read SQL job: {data.template}")
-        endpoint = f"{API_CONFIG['api_base_url']}"
+        endpoint = ""  # Empty string since base_url already contains the full path
         response = await self.post_request(endpoint, wire, JobResponse)
         
         logger.info(f"Read SQL job created. Job ID: {response.data.object_id if response.success else 'N/A'}, Columns: {column_names}")
@@ -51,7 +51,7 @@ class JobRepository(BaseRepository):
         wire = build_wire_payload(data)
 
         logger.info(f"Creating send email job: {data.template}")
-        endpoint = f"{API_CONFIG['api_base_url']}"
+        endpoint = ""  # Empty string since base_url already contains the full path
         response = await self.post_request(endpoint, wire, JobResponse)
         return response
 

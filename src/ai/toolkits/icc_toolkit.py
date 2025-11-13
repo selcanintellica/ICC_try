@@ -1,6 +1,6 @@
 from typing import List
-from langchain_core.tools import tool
 import uuid
+from httpx import AsyncClient
 from src.models.natural_language import (
     SendEmailLLMRequest,
     ReadSqlLLMRequest,
@@ -11,7 +11,6 @@ from src.repositories.job_repository import JobRepository
 
 
 
-@tool
 async def write_data_job(data: WriteDataLLMRequest) -> dict:
     """
     Create a job to write data using the JobRepository.
@@ -30,11 +29,13 @@ async def write_data_job(data: WriteDataLLMRequest) -> dict:
     if not data.id:
         data.id = str(uuid.uuid4())
 
-    await JobRepository.write_data_job(data)
+    # Create HTTP client and repository instance
+    async with AsyncClient() as client:
+        repo = JobRepository(client)
+        await JobRepository.write_data_job(repo, data)
     return {"message": "Success", "data": data.model_dump()}
 
 
-@tool
 async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
     """
     Create a job to read SQL data using the JobRepository.
@@ -57,15 +58,18 @@ async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
     if not data.id:
         data.id = str(uuid.uuid4())
     
-    response, columns = await JobRepository.read_sql_job(data)
+    # Create HTTP client and repository instance
+    async with AsyncClient() as client:
+        repo = JobRepository(client)
+        response, columns = await JobRepository.read_sql_job(repo, data)
     
     if response.success:
         return {
             "message": "Success",
             "job_id": response.data.object_id,
             "columns": columns,
-            "query": data.variables.query,
-            "connection": data.variables.connection
+            "query": data.variables[0].query,
+            "connection": data.variables[0].connection
         }
     else:
         return {
@@ -75,7 +79,6 @@ async def read_sql_job(data: ReadSqlLLMRequest) -> dict:
         }
 
 
-@tool
 async def send_email_job(data: SendEmailLLMRequest) -> dict:
     """
     Create a job to send an email using the JobRepository.
@@ -88,7 +91,10 @@ async def send_email_job(data: SendEmailLLMRequest) -> dict:
     if not data.id:
         data.id = str(uuid.uuid4())
 
-    await JobRepository.send_email_job(data)
+    # Create HTTP client and repository instance
+    async with AsyncClient() as client:
+        repo = JobRepository(client)
+        await JobRepository.send_email_job(repo, data)
     return {"message": "Success", "data": data.model_dump()}
 
 

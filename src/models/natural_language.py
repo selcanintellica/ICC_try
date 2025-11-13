@@ -10,11 +10,12 @@ class Props(BaseModel):
     active: str = "true"
     name: str
     description: Optional[str] = ""
+
 class BaseLLMRequest(BaseModel):
     id: Optional[str] = None
-    rights: Rights
+    rights: Dict[str, Any] = Field(default_factory=lambda: {"owner": "184431757886694"})
     priority: str = "Normal"
-    props: Props
+    props: Dict[str, Any] = Field(default_factory=dict)
     skip: str = "false"
     folder: str = "3023602439587835"
 
@@ -74,15 +75,17 @@ class SendEmailLLMRequest(BaseLLMRequest):
         return "SENDEMAIL"
 
     def to_field_values(self) -> Dict[str, Any]:
+        # Access first variable since it's a list
+        var = self.variables[0]
         return {
             "template": self.template,
-            "connection": self.variables.connection,
-            "query": self.variables.query,
-            "to": self.variables.to,
-            "cc": self.variables.cc or "",
-            "subject": self.variables.subject,
-            "text": self.variables.text,
-            "attachment": "true" if self.variables.attachment else "false",
+            "connection": var.connection,
+            "query": var.query,
+            "to": var.to,
+            "cc": var.cc or "",
+            "subject": var.subject,
+            "text": var.text,
+            "attachment": "true" if var.attachment else "false",
         }
 
 
@@ -163,19 +166,20 @@ class ReadSqlLLMRequest(BaseLLMRequest):
         return "READSQL"
 
     def to_field_values(self) -> Dict[str, Any]:
-        # Returns a list of dicts for each variable in variables
+        # Access first variable since it's a list
+        var = self.variables[0]
         return {
                 "template": self.template,
-                "table_name": self.variables.table_name,
-                "query": self.variables.query,
-                "write_count": self.variables.write_count,
-                "write_count_connection": self.variables.write_count_connection,
-                "execute_query": self.variables.execute_query,
-                "result_schema": self.variables.result_schema,
-                "only_dataset_columns": self.variables.only_dataset_columns,
-                "write_count_table": self.variables.write_count_table,
-                "drop_before_create": self.variables.drop_before_create,
-                "connection": self.variables.connection,
+                "table_name": var.table_name,
+                "query": var.query,
+                "write_count": var.write_count,
+                "write_count_connection": var.write_count_connection,
+                "execute_query": var.execute_query,
+                "result_schema": var.result_schema,
+                "only_dataset_columns": var.only_dataset_columns,
+                "write_count_table": var.write_count_table,
+                "drop_before_create": var.drop_before_create,
+                "connection": var.connection,
             }
 
 
@@ -275,17 +279,18 @@ class WriteDataLLMRequest(BaseLLMRequest):
         return "WRITEDATA"
 
     def to_field_values(self) -> Dict[str, Any]:
-        # Returns a list of dicts for each variable in variables
+        # Access first variable since it's a list
+        var = self.variables[0]
         return {
                 "template": self.template,
-                "only_dataset_columns": self.variables.only_dataset_columns,
-                "write_count_schemas": self.variables.write_count_schemas,
-                "connection": self.variables.connection,
-                "schemas": self.variables.schemas,
-                "data_set": self.variables.data_set,
-                "write_count": self.variables.write_count,
-                "write_count_connection": self.variables.write_count_connection,
-                "drop_or_truncate": self.variables.drop_or_truncate,
-                "table": self.variables.table,
-                "write_count_table": self.variables.write_count_table,
+                "only_dataset_columns": var.only_dataset_columns,
+                "write_count_schemas": var.write_count_schemas,
+                "connection": var.connection,
+                "schemas": var.schemas,
+                "data_set": var.data_set,
+                "write_count": var.write_count,
+                "write_count_connection": var.write_count_connection,
+                "drop_or_truncate": var.drop_or_truncate,
+                "table": var.table,
+                "write_count_table": var.write_count_table,
             }

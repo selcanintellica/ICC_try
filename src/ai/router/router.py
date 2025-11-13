@@ -15,8 +15,6 @@ from src.models.natural_language import (
     WriteDataVariables,
     SendEmailLLMRequest,
     SendEmailVariables,
-    Rights,
-    Props,
     ColumnSchema
 )
 
@@ -79,21 +77,19 @@ async def handle_turn(memory: Memory, user_utterance: str) -> Tuple[Memory, str]
             logger.info("⚡ Executing read_sql_job...")
             
             try:
-                # Build the request
-                params = memory.gathered_params
-                
+                # Build the request - use connection from memory (set externally)
                 request = ReadSqlLLMRequest(
-                    rights=Rights(),
-                    props=Props(name=f"Query_{memory.last_sql[:20]}"),
+                    rights={"owner": "184431757886694"},
+                    props={"active": "true", "name": f"Query_{memory.last_sql[:20]}", "description": ""},
                     variables=[ReadSqlVariables(
                         query=memory.last_sql,
-                        connection=params.get("connection", "default"),
+                        connection=memory.connection,  # Use connection from memory
                         execute_query=True
                     )]
                 )
                 
-                # Execute the tool
-                result = await read_sql_job.invoke(request)
+                # Execute the tool directly (no @tool decorator)
+                result = await read_sql_job(request)
                 
                 logger.info(f"📊 read_sql_job result: {json.dumps(result, indent=2)}")
                 
@@ -156,8 +152,8 @@ async def handle_turn(memory: Memory, user_utterance: str) -> Tuple[Memory, str]
                     columns = [ColumnSchema(columnName=col) for col in memory.last_columns]
                     
                     request = WriteDataLLMRequest(
-                        rights=Rights(),
-                        props=Props(name=f"Write_{params.get('table', 'table')}"),
+                        rights={"owner": "184431757886694"},
+                        props={"active": "true", "name": f"Write_{params.get('table', 'table')}", "description": ""},
                         variables=[WriteDataVariables(
                             connection=params.get("connection", "default"),
                             table=params.get("table", "output_table"),
@@ -193,8 +189,8 @@ async def handle_turn(memory: Memory, user_utterance: str) -> Tuple[Memory, str]
                     params = memory.gathered_params
                     
                     request = SendEmailLLMRequest(
-                        rights=Rights(),
-                        props=Props(name="Email_Results"),
+                        rights={"owner": "184431757886694"},
+                        props={"active": "true", "name": "Email_Results", "description": ""},
                         variables=[SendEmailVariables(
                             query=memory.last_sql,
                             to=params.get("to"),

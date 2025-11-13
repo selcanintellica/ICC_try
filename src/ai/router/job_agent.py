@@ -22,43 +22,44 @@ You are given:
 
 Your task:
 - Extract any NEW parameters from the user's message
-- Identify which REQUIRED parameters are still missing
+- Identify which REQUIRED parameters are still missing FOR THE CURRENT TOOL ONLY
 - If parameters are missing, ask ONE clear question
 - If all required parameters are present, output the action
 
+IMPORTANT: ONLY check for parameters that belong to the current tool!
+
 Required parameters by tool:
 
-read_sql:
-- query (SQL query) - already known from SQL generation
-- connection (database connection name)
-- template_id (default: "2223045341865624")
+read_sql (ONLY these parameters):
+- NO PARAMETERS NEEDED - query and connection are provided automatically
+- Do NOT ask for anything, always return action "TOOL"
 
-write_data:
-- connection (database connection name)
-- table (table name to write to)
-- data_set (job_id from previous read_sql)
-- columns (from previous read_sql)
-- drop_or_truncate ("drop", "truncate", or "none")
-- only_dataset_columns (true/false)
+write_data (ONLY these parameters):
+- connection (database connection name) - REQUIRED
+- table (table name to write to) - REQUIRED
+- drop_or_truncate ("drop", "truncate", or "none") - REQUIRED
+- data_set (job_id from previous read_sql) - already available in memory, do NOT ask for it
+- columns (from previous read_sql) - already available in memory, do NOT ask for it
+- only_dataset_columns (true/false) - defaults to true, do NOT ask for it
 
-send_email:
-- query (SQL query)
-- to (recipient email)
-- subject (email subject)
-- text (email body)
-- connection (database connection)
-- attachment (true/false, default: true)
+send_email (ONLY these parameters):
+- to (recipient email) - REQUIRED
+- subject (email subject) - REQUIRED
+- query (SQL query) - already available in memory
+- text (email body) - optional
+- connection (database connection) - optional
+- attachment (true/false) - defaults to true
 
 Response format (JSON):
 {
-  "action": "ASK" or "TOOL" or "FINISH",
+  "action": "ASK" or "TOOL",
   "question": "your question if ASK",
   "tool_name": "read_sql|write_data|send_email if TOOL",
-  "params": {...extracted params...},
-  "message": "completion message if FINISH"
+  "params": {...extracted params...}
 }
 
 Be conversational but concise. Ask for ONE missing parameter at a time.
+DO NOT ask for parameters that belong to a different tool!
 """
 
 
@@ -124,9 +125,19 @@ class JobAgent:
                 
                 result = json.loads(content)
                 
-                # Update gathered params
+                # Normalize: if LLM returns "message" instead of "question", fix it
+                if "message" in result and "question" not in result:
+                    result["question"] = result["message"]
+                
+                # Update gathered params (filter out None values)
                 if "params" in result and result["params"]:
-                    memory.gathered_params.update(result["params"])
+                    # Only update with non-None values
+                    new_params = {k: v for k, v in result["params"].items() if v is not None}
+                    memory.gathered_params.update(new_params)
+                
+                # For read_sql, always use fallback to ensure we use memory.connection
+                if tool_name == "read_sql":
+                    return self._fallback_param_check(memory, tool_name, user_input)
                 
                 logger.info(f"✅ Job Agent action: {result.get('action')}")
                 
@@ -137,29 +148,25 @@ class JobAgent:
                 logger.error(f"Raw content: {content}")
                 
                 # Fallback: Ask for parameters manually
-                return self._fallback_param_check(memory, tool_name)
+                return self._fallback_param_check(memory, tool_name, user_input)
                 
         except Exception as e:
             logger.error(f"❌ Job Agent error: {str(e)}")
-            return self._fallback_param_check(memory, tool_name)
+            return self._fallback_param_check(memory, tool_name, user_input)
     
-    def _fallback_param_check(self, memory: Memory, tool_name: str) -> Dict[str, Any]:
+    def _fallback_param_check(self, memory: Memory, tool_name: str, user_input: str = "") -> Dict[str, Any]:
         """Fallback parameter checking if LLM fails."""
         params = memory.gathered_params
         
         if tool_name == "read_sql":
-            if not params.get("connection"):
-                return {
-                    "action": "ASK",
-                    "question": "What database connection should I use? (e.g., 'oracle_prod', 'mysql_dev')"
-                }
-            # Have all required params
+            # read_sql: query from SQL agent, connection from memory (external)
+            # No need to ask user for anything
             return {
                 "action": "TOOL",
                 "tool_name": "read_sql",
                 "params": {
                     "query": memory.last_sql,
-                    "connection": params["connection"],
+                    "connection": memory.connection,  # From memory, not LLM
                     "template": "2223045341865624"
                 }
             }

@@ -11,7 +11,7 @@ Then open your browser to: http://localhost:8050
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)  # override=True forces .env to override system variables
 
 import dash
 from dash import dcc, html, Input, Output, State, callback_context

@@ -1,7 +1,7 @@
 {
   "connections": [
     {
-      "name": "oracle_10",
+      "name": "ORACLE_10",
       "label": "Oracle Production (10)",
       "schemas": [
         {
@@ -25,23 +25,56 @@
       ]
     },
     {
-      "name": "oracle_dev",
-      "label": "Oracle Development",
+      "name": "ORACLE_11",
+      "label": "Oracle Production (11)",
       "schemas": [
         {
-          "name": "TEST_SCHEMA",
-          "label": "TEST_SCHEMA",
+          "name": "ICC_META",
+          "label": "ICC_META",
           "tables": []
         }
       ]
     },
     {
-      "name": "postgres_prod",
-      "label": "PostgreSQL Production",
+      "name": "oracle_18",
+      "label": "Oracle Development (18)",
+      "schemas": [
+        {
+          "name": "ICC_DEV_META",
+          "label": "ICC_DEV_META",
+          "tables": []
+        }
+      ]
+    },
+    {
+      "name": "POSTGRE_11",
+      "label": "PostgreSQL Production (11)",
       "schemas": [
         {
           "name": "PUBLIC",
           "label": "PUBLIC",
+          "tables": []
+        }
+      ]
+    },
+    {
+      "name": "POSTGRE_14",
+      "label": "PostgreSQL Production (14)",
+      "schemas": [
+        {
+          "name": "PUBLIC",
+          "label": "PUBLIC",
+          "tables": []
+        }
+      ]
+    },
+    {
+      "name": "MSSQL",
+      "label": "SQL Server",
+      "schemas": [
+        {
+          "name": "dbo",
+          "label": "dbo",
           "tables": []
         }
       ]

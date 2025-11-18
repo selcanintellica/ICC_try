@@ -28,7 +28,7 @@ class Memory:
     last_columns: Optional[List[str]] = None
     last_preview: Optional[Dict[str, Any]] = None
     gathered_params: Dict[str, Any] = field(default_factory=dict)
-    connection: str = "oracle_10"  # Connection name, set from UI
+    connection: str = "ORACLE_10"  # Connection name, set from UI
     schema: str = "SALES"  # Schema name, set from UI
     selected_tables: List[str] = field(default_factory=lambda: ["customers", "orders"])  # Tables selected from UI
     
@@ -66,7 +66,7 @@ class Memory:
         memory.last_columns = data.get("last_columns")
         memory.last_preview = data.get("last_preview")
         memory.gathered_params = data.get("gathered_params", {})
-        memory.connection = data.get("connection", "oracle_10")
+        memory.connection = data.get("connection", "ORACLE_10")
         memory.schema = data.get("schema", "SALES")
         memory.selected_tables = data.get("selected_tables", ["customers", "orders"])
         return memory
